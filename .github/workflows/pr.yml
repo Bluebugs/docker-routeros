@@ -36,6 +36,7 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "github-actions@users.noreply.github.com"
           sed -r "s/(ROUTEROS_VERSION=\")(.*)(\")/\1${{ steps.check_release.outputs.release }}\3/g" -i Dockerfile
+          git diff
           git checkout -b update-routeros
           git commit -m "Update RouterOS version to ${{ steps.check_release.outputs.release }}" Dockerfile
 
