@@ -36,10 +36,11 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "github-actions@users.noreply.github.com"
           sed -r "s/(ROUTEROS_VERSION=\")(.*)(\")/\1${{ steps.check_release.outputs.release }}\3/g" -i Dockerfile
+          git checkout -b update-routeros
           git commit -am "Update RouterOS version to ${{ steps.check_release.outputs.release }}"
 
       - name: push pull request
         if: ${{ steps.check_release.outputs.new == 'true' && !env.ACT }}
-        run: gh pr create -B master --title 'Update RouterOS version to ${{ steps.check_release.outputs.release }}' --body 'Created by Github action'
+        run: gh pr create --head update-routeros -B master --title 'Update RouterOS version to ${{ steps.check_release.outputs.release }}' --body 'Created by Github action'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
