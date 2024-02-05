@@ -30,18 +30,18 @@ jobs:
             echo "new=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: create pull request
+      - name: Edit Dockerfile
         if: ${{ steps.check_release.outputs.new == 'true' }}
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "github-actions@users.noreply.github.com"
           sed -r "s/(ROUTEROS_VERSION=\")(.*)(\")/\1${{ steps.check_release.outputs.release }}\3/g" -i Dockerfile
           git diff
-          git checkout -b update-routeros
-          git commit -m "Update RouterOS version to ${{ steps.check_release.outputs.release }}" Dockerfile
 
-      - name: push pull request
+      - name: Create Pull Request
         if: ${{ steps.check_release.outputs.new == 'true' && !env.ACT }}
-        run: gh pr create -B origin/master -H update-routeros --title 'Update RouterOS version to ${{ steps.check_release.outputs.release }}' --body 'Created by Github action'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: "Update RouterOS version to ${{ steps.check_release.outputs.release }}"
+          committer: "GitHub Actions<github-actions@users.noreply.github.com>"
+          body: 'Created by Github action'
+          title: 'Update RouterOS version to ${{ steps.check_release.outputs.release }}'
+          branch: update-routeros
